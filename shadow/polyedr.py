@@ -87,6 +87,9 @@ class Facet:
 
     def __init__(self, vertexes):
         self.vertexes = vertexes
+        self.edges = []
+        for i in range(len(self.vertexes)):
+            self.edges.append(Edge(self.vertexes[i-1], self.vertexes[i]))
 
     # «Вертикальна» ли грань?
     def is_vertical(self):
@@ -115,6 +118,20 @@ class Facet:
     def center(self):
         return sum(self.vertexes, R3(0.0, 0.0, 0.0)) * \
             (1.0 / len(self.vertexes))
+
+        # Центр грани внутри единичного куба?
+    def center_in_unit_cube(self):
+        
+        return (abs(self.center().x) <= 0.5 and abs(self.center().y) <= 0.5 and
+                abs(self.center().z) <= 0.5)
+        
+        # угло между плоскостью ХОУ и гранью полиэдра
+    def angle(self):
+        n1 = R3(0.0, 0.0, 1.0)
+        n2 = self.h_normal()
+        n3 = n1.dot(n2)
+        angle = acos(n3 / sqrt(n2.x ** 2 + n2.y ** 2 + n2.z ** 2))
+        return angle
 
 
 class Polyedr:
@@ -159,11 +176,41 @@ class Polyedr:
                     # задание самой грани
                     self.facets.append(Facet(vertexes))
 
+        # Удаление дубликатов рёбер
+    def edges_uniq(self):
+        edges = {}
+        for e in self.edges:
+            if (e.beg, e.fin) not in edges and (e.fin, e.beg) not in edges:
+                edges[(e.beg, e.fin)] = e
+        self.edges = list(edges.values())
+
+    # Нахождение "просветов"
+    def shadow(self):
+        self.edges_uniq()
+        for e in self.edges:
+            for f in self.facets:
+                e.shadow(f)
+        return self
+
     # Метод изображения полиэдра
     def draw(self, tk):  # pragma: no cover
         tk.clean()
         for e in self.edges:
-            for f in self.facets:
-                e.shadow(f)
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
+
+    def modification(self):
+        def triandle_area(a, b, c):
+            pre_area = a - b.cross(b-c)
+            area1 = 0.5 * sqrt(pre_area.x ** 2 +
+                              pre_area.y ** 2 + pre_area.z ** 2)
+            return area1
+        area = 0.0
+        for f in self.facets:
+            flag = False
+            for e in f.edges:
+                if len(e.gaps) != 0:
+                    flag = True
+            if not f.center_in_unit_cube() and f.angle() < pi/7 and not (flag):
+                area += triandle_area(f.center, f.edges[0], f.edges[1])
+        return area
