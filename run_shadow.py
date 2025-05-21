@@ -12,6 +12,7 @@ try:
         print(f"Начало работы с полиэдром '{name}'")
         start_time = time()
         polyedr = Polyedr(f"data/{name}.geom")
+        polyedr.shadow()
         polyedr.draw(tk)
         delta_time = time() - start_time
         print(f"Изображение полиэдра '{name}' заняло {delta_time} сек.")

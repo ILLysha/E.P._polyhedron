@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, mock_open
-
+from common.r3 import R3
 from shadow.polyedr import Polyedr
 
 
@@ -36,3 +36,9 @@ class TestPolyedr(unittest.TestCase):
 
     def test_num_edges(self):
         self.assertEqual(len(self.polyedr.edges), 16)
+
+    def test_triangle_area(self):
+        a = R3(0, 0, 0)
+        b = R3(1, 0, 0)
+        c = R3(0, 1, 0)
+        assert Polyedr.triandle_area(a, b, c) == 0.5

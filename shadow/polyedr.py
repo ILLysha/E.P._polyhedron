@@ -121,10 +121,10 @@ class Facet:
 
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
-        
+
         return (abs(self.center().x) <= 0.5 and abs(self.center().y) <= 0.5 and
                 abs(self.center().z) <= 0.5)
-        
+
         # угло между плоскостью ХОУ и гранью полиэдра
     def angle(self):
         n1 = R3(0.0, 0.0, 1.0)
@@ -199,18 +199,24 @@ class Polyedr:
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
 
+    #  Площадь треугольника заданного тремя координатами
+
+    def triandle_area(a, b, c):
+        pre_area = a - b.cross(b-c)
+        area1 = 0.5 * sqrt(pre_area.x ** 2 +
+                           pre_area.y ** 2 + pre_area.z ** 2)
+        return area1
+
     def modification(self):
-        def triandle_area(a, b, c):
-            pre_area = a - b.cross(b-c)
-            area1 = 0.5 * sqrt(pre_area.x ** 2 +
-                              pre_area.y ** 2 + pre_area.z ** 2)
-            return area1
+
         area = 0.0
         for f in self.facets:
             flag = False
             for e in f.edges:
                 if len(e.gaps) != 0:
                     flag = True
-            if not f.center_in_unit_cube() and f.angle() < pi/7 and not (flag):
-                area += triandle_area(f.center, f.edges[0], f.edges[1])
+            print(f.center_in_unit_cube(), f.angle(), flag)
+            if not (f.center_in_unit_cube()) and f.angle() <= pi/7 and not (flag):
+                print("!!!")
+                area += Polyedr.triandle_area(f.center, f.edges[0], f.edges[1])
         return area
