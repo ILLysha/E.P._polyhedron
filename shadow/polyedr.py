@@ -190,9 +190,8 @@ class Polyedr:
         for e in self.edges:
             for f in self.facets:
                 e.shadow(f)
-        return self
-
     # Метод изображения полиэдра
+
     def draw(self, tk):  # pragma: no cover
         tk.clean()
         for e in self.edges:
@@ -202,21 +201,35 @@ class Polyedr:
     #  Площадь треугольника заданного тремя координатами
 
     def triandle_area(a, b, c):
-        pre_area = a - b.cross(b-c)
-        area1 = 0.5 * sqrt(pre_area.x ** 2 +
+        print(a.x, a.y, a.z)
+        print(b.x, b.y, b.z)
+        print(c.x, c.y, c.z)
+        pre_area = (b - a).cross(c-a)
+        # вычисление модуля векторного произвеения
+        area = 0.5 * sqrt(pre_area.x ** 2 +
                            pre_area.y ** 2 + pre_area.z ** 2)
-        return area1
+        return area
 
+    def facet_area(self):
+        for e in self:
+            area += Polyedr.triandle_area(self.center(), e.beg, e.fin)
+        return area
+    
     def modification(self):
-
         area = 0.0
+        self.edges_uniq()
         for f in self.facets:
             flag = False
             for e in f.edges:
+                for g in self.facets:
+                    e.shadow(g)
+                print(e, e.gaps)
+            # если просветов нет то ребро полностью невидимо
                 if len(e.gaps) != 0:
                     flag = True
-            print(f.center_in_unit_cube(), f.angle(), flag)
-            if not (f.center_in_unit_cube()) and f.angle() <= pi/7 and not (flag):
-                print("!!!")
-                area += Polyedr.triandle_area(f.center, f.edges[0], f.edges[1])
+            
+            if not (f.center_in_unit_cube())\
+                and f.angle() <= pi/7\
+                    and not (flag):
+                        area += Polyedr.facet_area(f)
         return area
