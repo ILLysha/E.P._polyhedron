@@ -7,12 +7,11 @@ from shadow.polyedr import Polyedr
 
 tk = TkDrawer()
 try:
-    for name in ["test_1", "ccc", "cube", "box", "king", "cow"]:
+    for name in ["test_1", "test_2", "ccc", "cube", "box", "king", "cow"]:
         print("=============================================================")
         print(f"Начало работы с полиэдром '{name}'")
         start_time = time()
         polyedr = Polyedr(f"data/{name}.geom")
-        polyedr.shadow()
         polyedr.draw(tk)
         delta_time = time() - start_time
         print(f"Изображение полиэдра '{name}' заняло {delta_time} сек.")

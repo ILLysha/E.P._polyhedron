@@ -135,9 +135,6 @@ class Facet:
         return angle
 
     def triandle_area(self, a, b, c):
-        print(a.x, a.y, a.z)
-        print(b.x, b.y, b.z)
-        print(c.x, c.y, c.z)
         pre_area = (b - a).cross(c-a)
         # вычисление модуля векторного произвеения
         area = 0.5 * sqrt(pre_area.x ** 2 +
@@ -202,15 +199,15 @@ class Polyedr:
             if (e.beg, e.fin) not in edges and (e.fin, e.beg) not in edges:
                 edges[(e.beg, e.fin)] = e
         self.edges = list(edges.values())
-
-    # Метод изображения полиэдра
-
+        
     def draw(self, tk):  # pragma: no cover
         tk.clean()
         for e in self.edges:
+            for f in self.facets:
+                e.shadow(f)
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
-
+                
     def modification(self):
         area = 0.0
         self.edges_uniq()
@@ -219,7 +216,6 @@ class Polyedr:
             for e in f.edges:
                 for g in self.facets:
                     e.shadow(g)
-                print(e, e.gaps)
             # если просветов нет то ребро полностью невидимо
                 if len(e.gaps) != 0:
                     flag = True
