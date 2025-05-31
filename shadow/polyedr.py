@@ -122,24 +122,42 @@ class Facet:
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
 
-        return (abs(self.center().x) <= 0.5 and abs(self.center().y) <= 0.5 and
-                abs(self.center().z) <= 0.5)
+        return (abs(self.center().x) <= 0.5 * Polyedr.H
+                and abs(self.center().y) <= 0.5 * Polyedr.H
+                and abs(self.center().z) <= 0.5 * Polyedr.H)
 
         # угло между плоскостью ХОУ и гранью полиэдра
     def angle(self):
-        n1 = R3(0.0, 0.0, 1.0)
+        n1 = Polyedr.V
         n2 = self.h_normal()
         n3 = n1.dot(n2)
         angle = acos(n3 / sqrt(n2.x ** 2 + n2.y ** 2 + n2.z ** 2))
         return angle
+
+    def triandle_area(self, a, b, c):
+        print(a.x, a.y, a.z)
+        print(b.x, b.y, b.z)
+        print(c.x, c.y, c.z)
+        pre_area = (b - a).cross(c-a)
+        # вычисление модуля векторного произвеения
+        area = 0.5 * sqrt(pre_area.x ** 2 +
+                          pre_area.y ** 2 + pre_area.z ** 2)
+        return area
+
+    def facet_area(self):
+        area = 0.0
+        for e in self.edges:
+            area += self.triandle_area(self.center(), e.beg, e.fin)
+        return area
 
 
 class Polyedr:
     """ Полиэдр """
     # вектор проектирования
     V = R3(0.0, 0.0, 1.0)
-
+    H = 0
     # Параметры конструктора: файл, задающий полиэдр
+
     def __init__(self, file):
 
         # списки вершин, рёбер и граней полиэдра
@@ -153,6 +171,7 @@ class Polyedr:
                     buf = line.split()
                     # коэффициент гомотетии
                     c = float(buf.pop(0))
+                    H = c
                     # углы Эйлера, определяющие вращение
                     alpha, beta, gamma = (float(x) * pi / 180.0 for x in buf)
                 elif i == 1:
@@ -184,12 +203,6 @@ class Polyedr:
                 edges[(e.beg, e.fin)] = e
         self.edges = list(edges.values())
 
-    # Нахождение "просветов"
-    def shadow(self):
-        self.edges_uniq()
-        for e in self.edges:
-            for f in self.facets:
-                e.shadow(f)
     # Метод изображения полиэдра
 
     def draw(self, tk):  # pragma: no cover
@@ -198,23 +211,6 @@ class Polyedr:
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
 
-    #  Площадь треугольника заданного тремя координатами
-
-    def triandle_area(a, b, c):
-        print(a.x, a.y, a.z)
-        print(b.x, b.y, b.z)
-        print(c.x, c.y, c.z)
-        pre_area = (b - a).cross(c-a)
-        # вычисление модуля векторного произвеения
-        area = 0.5 * sqrt(pre_area.x ** 2 +
-                           pre_area.y ** 2 + pre_area.z ** 2)
-        return area
-
-    def facet_area(self):
-        for e in self:
-            area += Polyedr.triandle_area(self.center(), e.beg, e.fin)
-        return area
-    
     def modification(self):
         area = 0.0
         self.edges_uniq()
@@ -227,9 +223,9 @@ class Polyedr:
             # если просветов нет то ребро полностью невидимо
                 if len(e.gaps) != 0:
                     flag = True
-            
+
             if not (f.center_in_unit_cube())\
                 and f.angle() <= pi/7\
                     and not (flag):
-                        area += Polyedr.facet_area(f)
+                area += f.facet_area()
         return area
