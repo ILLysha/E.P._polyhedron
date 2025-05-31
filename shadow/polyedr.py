@@ -199,7 +199,7 @@ class Polyedr:
             if (e.beg, e.fin) not in edges and (e.fin, e.beg) not in edges:
                 edges[(e.beg, e.fin)] = e
         self.edges = list(edges.values())
-        
+
     def draw(self, tk):  # pragma: no cover
         tk.clean()
         for e in self.edges:
@@ -207,7 +207,7 @@ class Polyedr:
                 e.shadow(f)
             for s in e.gaps:
                 tk.draw_line(e.r3(s.beg), e.r3(s.fin))
-                
+
     def modification(self):
         area = 0.0
         self.edges_uniq()

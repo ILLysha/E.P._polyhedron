@@ -13,6 +13,6 @@ class TestPolyedr(unittest.TestCase):
 
     def test_1(self):
         self.assertAlmostEqual(self.procecc_file("test_1"), 2500.0)
-        
+
     def test_2(self):
         self.assertAlmostEqual(self.procecc_file("test_2"), 0.0)
