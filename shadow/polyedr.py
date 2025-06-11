@@ -122,9 +122,9 @@ class Facet:
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
 
-        return (abs(self.center().x) <= 0.5 * Polyedr.H
-                and abs(self.center().y) <= 0.5 * Polyedr.H
-                and abs(self.center().z) <= 0.5 * Polyedr.H)
+        return (abs(self.center().x) <= 0.5 
+                and abs(self.center().y) <= 0.5 
+                and abs(self.center().z) <= 0.5 )
 
         # угло между плоскостью ХОУ и гранью полиэдра
     def angle(self):
@@ -152,7 +152,6 @@ class Polyedr:
     """ Полиэдр """
     # вектор проектирования
     V = R3(0.0, 0.0, 1.0)
-    H = 0
     # Параметры конструктора: файл, задающий полиэдр
 
     def __init__(self, file):
@@ -168,7 +167,6 @@ class Polyedr:
                     buf = line.split()
                     # коэффициент гомотетии
                     c = float(buf.pop(0))
-                    H = c
                     # углы Эйлера, определяющие вращение
                     alpha, beta, gamma = (float(x) * pi / 180.0 for x in buf)
                 elif i == 1:
