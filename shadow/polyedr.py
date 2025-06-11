@@ -122,9 +122,9 @@ class Facet:
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
 
-        return (abs(self.center().x) <= 0.5 
-                and abs(self.center().y) <= 0.5 
-                and abs(self.center().z) <= 0.5 )
+        return (abs(self.center().x) <= 0.5
+                and abs(self.center().y) <= 0.5
+                and abs(self.center().z) <= 0.5)
 
         # угло между плоскостью ХОУ и гранью полиэдра
     def angle(self):
