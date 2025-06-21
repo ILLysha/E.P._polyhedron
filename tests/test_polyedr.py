@@ -41,5 +41,5 @@ class TestPolyedr(unittest.TestCase):
         a = R3(0, 0, 0)
         b = R3(1, 0, 0)
         c = R3(0, 1, 0)
-        f = Facet([a, b, c])
+        f = Facet([a, b, c], [a, b, c])
         self.assertAlmostEqual(f.triandle_area(a, b, c), 0.5)

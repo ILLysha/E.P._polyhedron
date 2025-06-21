@@ -12,7 +12,7 @@ class TestPolyedr(unittest.TestCase):
         return p.modification()
 
     def test_1(self):
-        self.assertAlmostEqual(self.procecc_file("test_1"), 2500.0)
+        self.assertAlmostEqual(self.procecc_file("test_1"), 25.0)
 
     def test_2(self):
         self.assertAlmostEqual(self.procecc_file("test_2"), 0.0)

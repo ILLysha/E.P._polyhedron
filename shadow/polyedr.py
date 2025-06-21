@@ -85,13 +85,20 @@ class Facet:
     """ Грань полиэдра """
     # Параметры конструктора: список вершин
 
-    def __init__(self, vertexes):
+    def __init__(self, vertexes, origin_vertexes):
         self.vertexes = vertexes
+        self.origin_vertexes = origin_vertexes
+
         self.edges = []
+        self.origin_edges = []
         for i in range(len(self.vertexes)):
             self.edges.append(Edge(self.vertexes[i-1], self.vertexes[i]))
 
+        for i in range(len(self.origin_vertexes)):
+            self.origin_edges.append(
+                Edge(self.origin_vertexes[i-1], self.origin_vertexes[i]))
     # «Вертикальна» ли грань?
+
     def is_vertical(self):
         return self.h_normal().dot(Polyedr.V) == 0.0
 
@@ -119,14 +126,17 @@ class Facet:
         return sum(self.vertexes, R3(0.0, 0.0, 0.0)) * \
             (1.0 / len(self.vertexes))
 
+    def origin_center(self):
+        return sum(self.origin_vertexes, R3(0.0, 0.0, 0.0)) * \
+            (1.0 / len(self.origin_vertexes))
+
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
+        # print(h)
+        return (abs(self.origin_center().x) <= 0.5 and
+                abs(self.origin_center().y) <= 0.5 and
+                abs(self.origin_center().z) <= 0.5)
 
-        return (abs(self.center().x) <= 0.5
-                and abs(self.center().y) <= 0.5
-                and abs(self.center().z) <= 0.5)
-
-        # угло между плоскостью ХОУ и гранью полиэдра
     def angle(self):
         n1 = Polyedr.V
         n2 = self.h_normal()
@@ -135,6 +145,9 @@ class Facet:
         return angle
 
     def triandle_area(self, a, b, c):
+        print(a.x, a.y, a.z)
+        print(b.x, b.y, b.z)
+        print(c.x, c.y, c.z)
         pre_area = (b - a).cross(c-a)
         # вычисление модуля векторного произвеения
         area = 0.5 * sqrt(pre_area.x ** 2 +
@@ -143,8 +156,8 @@ class Facet:
 
     def facet_area(self):
         area = 0.0
-        for e in self.edges:
-            area += self.triandle_area(self.center(), e.beg, e.fin)
+        for e in self.origin_edges:
+            area += self.triandle_area(self.origin_center(), e.beg, e.fin)
         return area
 
 
@@ -157,7 +170,8 @@ class Polyedr:
     def __init__(self, file):
 
         # списки вершин, рёбер и граней полиэдра
-        self.vertexes, self.edges, self.facets = [], [], []
+        self.vertexes, self.edges, self.origin_edges, = [], [], []
+        self.facets, self.origin_vertexes, = [], []
 
         # список строк файла
         with open(file) as f:
@@ -167,6 +181,8 @@ class Polyedr:
                     buf = line.split()
                     # коэффициент гомотетии
                     c = float(buf.pop(0))
+                    global h
+                    h = c
                     # углы Эйлера, определяющие вращение
                     alpha, beta, gamma = (float(x) * pi / 180.0 for x in buf)
                 elif i == 1:
@@ -177,6 +193,10 @@ class Polyedr:
                     x, y, z = (float(x) for x in line.split())
                     self.vertexes.append(R3(x, y, z).rz(
                         alpha).ry(beta).rz(gamma) * c)
+                    self.origin_vertexes.append(R3(x, y, z))
+                    # print(self.origin_vertexes[0].x,
+                    #   self.origin_vertexes[0].y,
+                    # self.origin_vertexes[0].z)
                 else:
                     # вспомогательный массив
                     buf = line.split()
@@ -184,11 +204,15 @@ class Polyedr:
                     size = int(buf.pop(0))
                     # массив вершин этой грани
                     vertexes = list(self.vertexes[int(n) - 1] for n in buf)
+                    origin_vertexes = list(
+                        self.origin_vertexes[int(n) - 1] for n in buf)
                     # задание рёбер грани
                     for n in range(size):
                         self.edges.append(Edge(vertexes[n - 1], vertexes[n]))
+                        self.origin_edges.append(
+                            Edge(origin_vertexes[n - 1], origin_vertexes[n]))
                     # задание самой грани
-                    self.facets.append(Facet(vertexes))
+                    self.facets.append(Facet(vertexes, origin_vertexes))
 
         # Удаление дубликатов рёбер
     def edges_uniq(self):
@@ -217,9 +241,10 @@ class Polyedr:
             # если просветов нет то ребро полностью невидимо
                 if len(e.gaps) != 0:
                     flag = True
-
+            print(not (f.center_in_unit_cube()), f.angle() <= pi/7, not (flag))
             if not (f.center_in_unit_cube())\
                 and f.angle() <= pi/7\
                     and not (flag):
                 area += f.facet_area()
+                print('popa')
         return area
