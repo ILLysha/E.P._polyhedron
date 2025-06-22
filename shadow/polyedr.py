@@ -132,7 +132,6 @@ class Facet:
 
         # Центр грани внутри единичного куба?
     def center_in_unit_cube(self):
-        # print(h)
         return (abs(self.origin_center().x) <= 0.5 and
                 abs(self.origin_center().y) <= 0.5 and
                 abs(self.origin_center().z) <= 0.5)
@@ -145,9 +144,6 @@ class Facet:
         return angle
 
     def triandle_area(self, a, b, c):
-        print(a.x, a.y, a.z)
-        print(b.x, b.y, b.z)
-        print(c.x, c.y, c.z)
         pre_area = (b - a).cross(c-a)
         # вычисление модуля векторного произвеения
         area = 0.5 * sqrt(pre_area.x ** 2 +
@@ -194,9 +190,6 @@ class Polyedr:
                     self.vertexes.append(R3(x, y, z).rz(
                         alpha).ry(beta).rz(gamma) * c)
                     self.origin_vertexes.append(R3(x, y, z))
-                    # print(self.origin_vertexes[0].x,
-                    #   self.origin_vertexes[0].y,
-                    # self.origin_vertexes[0].z)
                 else:
                     # вспомогательный массив
                     buf = line.split()
@@ -241,10 +234,8 @@ class Polyedr:
             # если просветов нет то ребро полностью невидимо
                 if len(e.gaps) != 0:
                     flag = True
-            print(not (f.center_in_unit_cube()), f.angle() <= pi/7, not (flag))
             if not (f.center_in_unit_cube())\
                 and f.angle() <= pi/7\
                     and not (flag):
                 area += f.facet_area()
-                print('popa')
         return area
